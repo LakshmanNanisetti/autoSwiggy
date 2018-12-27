@@ -15,6 +15,10 @@ import java.util.logging.Logger;
 public class DE extends Thread{
     private int name, address, btime, noOfOrders, deliveryTime;
 
+    DE(DE remove) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     public int getDeliveryTime() {
         return deliveryTime;
     }
@@ -70,10 +74,13 @@ public class DE extends Thread{
     }
     public void run(){
         try {
-            sleep(deliveryTime);
+//            System.out.println("dname:"+name+" dtime:"+deliveryTime);
+            sleep(deliveryTime*100);
+            System.out.println("de:"+name+" is available now at "+address);
         } catch (InterruptedException ex) {
             Logger.getLogger(DE.class.getName()).log(Level.SEVERE, null, ex);
         }
+        Swiggy.addToAvailable(name);
     }
     public String toString(){
         return "de"+name+" ,add:"+address;

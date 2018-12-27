@@ -19,8 +19,8 @@ public class Swiggy implements Values{
     private static int nc, nr, nde;
     private static Scanner sc;
     private static ArrayList<User> customers;
-    private static ArrayList<DE> des;
-    private static ArrayList<DE> bdes;
+    private static HashMap<Integer,DE> des;
+    private static HashMap<Integer,DE> bdes;
     private static ArrayList<Restaurant> restaurants;
     private static ArrayList<Order> orders;
     private static Random rand;
@@ -60,10 +60,10 @@ public class Swiggy implements Values{
         customers = new ArrayList<User>();
         
         // arraylist to hold all de names and addresses
-        des = new ArrayList<DE>();
+        des = new HashMap<Integer,DE>();
         
         //busy delivery boys
-        bdes = new ArrayList<DE>();
+        bdes = new HashMap<Integer,DE>();
         // arraylist to hold all res names, addresses and items
         restaurants = new ArrayList<Restaurant>();
         
@@ -103,7 +103,7 @@ public class Swiggy implements Values{
         for(int i = 1; i <= nde; i ++){
             areaNo = rand.nextInt(nareas) + 1;
             de = new DE(i, areaNo);
-            des.add(de);
+            des.put(i, de);
         }
     }
     
@@ -147,10 +147,11 @@ public class Swiggy implements Values{
         for(User c: customers){
             System.out.println("cust" + c.getname() + "\t" + "area" + c.getAddress());
         }
-        System.out.println("des:");
-        for(DE de: des){
-            System.out.println("de" + de.getname() + "\t" + "area" + de.getAddress());
-        }
+        System.out.println("des:\n"+ des);
+//        for(DE de: des){
+//            System.out.println("de" + de.getname() + "\t" + "area" + de.getAddress());
+//        }
+
         System.out.println("Restaurants:");
         for(Restaurant r: restaurants){
             System.out.println("res" + r.getName() + "\t" + "area" + r.getAddress());
@@ -170,8 +171,8 @@ public class Swiggy implements Values{
         for(User c: customers){
             ual[c.getAddress() - 1].add(c.getname());
         }
-        for(DE de: des){
-            deal[de.getAddress() - 1].add(de.getname());
+        for(Map.Entry<Integer,DE> de: des.entrySet()){
+            deal[de.getValue().getAddress() - 1].add(de.getKey());
         }
         for(Restaurant r: restaurants){
             ral[r.getAddress() - 1].add(r.getName());
@@ -225,9 +226,10 @@ public class Swiggy implements Values{
     public synchronized static int findDE(int cAdd, int rAdd) {
         int min = 100000;
         int dName = 0;
-        int dos = 10000;
-            System.out.println(des);
-        for(DE d: des){
+//        int dos = 10000;
+//            System.out.println("des:"+des);
+//            System.out.println("bdes:"+bdes);
+        for(Map.Entry<Integer,DE> de: des.entrySet()){
 //            if(((dos > d.getAvlTime()) ||
 //                ((min> (Math.abs(d.getAddress() - rAdd)+Math.abs(cAdd - rAdd))) 
 //                    && dos == d.getAvlTime()))){
@@ -235,19 +237,27 @@ public class Swiggy implements Values{
 //                dName = d.getname();
 //                dos = d.getAvlTime();
 //            }
-            int tempTime = Math.abs(d.getAddress() - rAdd)+Math.abs(cAdd - rAdd);
+            int tempTime = Math.abs(de.getValue().getAddress() - rAdd)+Math.abs(cAdd - rAdd);
             if(min>tempTime){
-                dName = d.getname();
+                dName = de.getKey();
                 min = tempTime;
             }
         }
         if(dName !=0){
 //            des.get(dName-1).incAvlTime(min);
-            des.get(dName-1).setAddress(cAdd);
-            des.get(dName-1).setDeliveryTime(min);
-            des.get(dName-1).run();
+            des.get(dName).setAddress(cAdd);
+            des.get(dName).setDeliveryTime(min);
+            bdes.put(dName,des.remove(dName));
+            System.out.println("des:"+des);
+            System.out.println("bdes:"+bdes);
+            Thread t = new Thread(bdes.get(dName));
+            t.start();
         }
         return dName;
+    }
+
+    static void addToAvailable(int name) {
+        des.put(name,bdes.remove(name));
     }
 
 }
