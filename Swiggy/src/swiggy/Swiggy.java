@@ -21,6 +21,7 @@ public class Swiggy implements Values{
     private static ArrayList<User> customers;
     private static ArrayList<DE> des;
     private static ArrayList<Restaurant> restaurants;
+    private static ArrayList<Order> orders;
     private static Random rand;
 
     public static int getNr() {
@@ -34,6 +35,10 @@ public class Swiggy implements Values{
         while(true){
             try{
                 scanVal = sc.nextInt();
+//                while(scanVal==0){
+//                    System.out.println("Input must be > 0");
+//                    scanVal = sc.nextInt();
+//                }
                 break;
             }
             catch(InputMismatchException ime){
@@ -59,6 +64,8 @@ public class Swiggy implements Values{
         // arraylist to hold all res names, addresses and items
         restaurants = new ArrayList<Restaurant>();
         
+        //arraylist of all orders
+        orders = new ArrayList<>();
         System.out.println("enter the no of customers:");
         nc = scanInt();
         System.out.println("enter the no of delivery executives:");
@@ -69,9 +76,10 @@ public class Swiggy implements Values{
         initDes();
         initRestaurants();
         initCustomers();
-        printUsers();
+        
         startOrdering();
         startDelivering();
+        printUsers();
     }
 
     private static void initCustomers() {
@@ -142,6 +150,10 @@ public class Swiggy implements Values{
             System.out.println("res" + r.getName() + "\t" + "area" + r.getAddress());
             System.out.println(r.getItems());
         }
+        System.out.println("orders:");
+        for(Order o : orders){
+            System.out.println(o);
+        }
     }
 
     static ArrayList<Integer> getRestaurantItems(int restnum) {
@@ -164,22 +176,24 @@ public class Swiggy implements Values{
     }
 
     private static void startDelivering() {
-        for(DE de: des){
-            de.start();
-        }
-        for(DE de: des){
-        try{
-                de.join();
+        for(Order o: orders){
+            o.start();
+            try{
+                o.join();
             }
-            catch(Exception e){
-                System.out.println("de error:" + e);
-            }
+            catch(Exception e){}
         }
     }
-
+    public static void addOrder(Order o){
+        orders.add(o);
+    }
+    public static int getRestaurantAddress(int restNum){
+        return restaurants.get(restNum-1).getAddress();
+    }
+    
     public synchronized static int assignOrder(int name, int a,int btime) {
         int time = 10000000;
-        int cName = 1;
+        int cName = 0;
         for(User c: customers){
             if(c.isDone()&&!c.isDelivered()){
                 int a1 = c.getAddress();
@@ -191,6 +205,7 @@ public class Swiggy implements Values{
                 }
             }
         }
+        
         if(time == 10000000){
             return btime;
         }
@@ -199,6 +214,32 @@ public class Swiggy implements Values{
                 customers.get(cName-1).getRestnum() + " to cust" + cName 
                 + " in " + (time+btime) + " minutes.");
         return time+btime;
+    }
+
+    public synchronized static int findDE(int rAdd) {
+        int min = 100000;
+        int dName = 0;
+        int dos = 10000;
+        for(DE d: des){
+            if(!d.isBusy() && ((dos > d.getNoOfOrders()) ||
+                ((min> Math.abs(d.getAddress()-rAdd)) 
+                    && dos == d.getNoOfOrders()))){
+                min = Math.abs(d.getAddress()-rAdd);
+                dName = d.getname();
+                dos = d.getNoOfOrders();
+            }
+        }
+        if(dName !=0){
+            des.get(dName-1).incNoOfOrders();
+            des.get(dName-1).setBusy(true);
+        }
+        return dName;
+    }
+
+    static void changeDeAddress(int dName, int cAdd) {
+        des.get(dName - 1).setAddress(cAdd);
+        des.get(dName - 1).setBusy(false);
+        
     }
 
 }

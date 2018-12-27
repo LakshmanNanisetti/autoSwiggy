@@ -10,14 +10,28 @@ package swiggy;
  * @author lakshman-pt2712
  */
 public class DE extends Thread{
-    private int name, address, btime;
+    private int name, address, btime, noOfOrders;
     private boolean busy;
+    public void incNoOfOrders(){
+        noOfOrders += 1;
+    }
 
+    public int getNoOfOrders() {
+        return noOfOrders;
+    }
     public DE(int name, int address) {
         this.name = name;
         this.address = address;
         busy = false;
         btime = 0;
+    }
+
+    public boolean isBusy() {
+        return busy;
+    }
+
+    public void setBusy(boolean busy) {
+        this.busy = busy;
     }
 
     public int getBtime() {

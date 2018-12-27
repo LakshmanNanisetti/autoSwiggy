@@ -74,6 +74,7 @@ public class User extends Thread{
         if(tolerance > 0){
             printOrder();
             done = true;
+            Swiggy.addOrder(new Order(name, restnum, address, Swiggy.getRestaurantAddress(restnum)));
         }
         else{
             System.out.println("user" + name + "says: I hate swiggy");
