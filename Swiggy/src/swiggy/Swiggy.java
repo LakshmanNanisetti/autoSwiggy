@@ -19,7 +19,7 @@ public class Swiggy implements Values{
     private static int nc, nr, nde;
     private static Scanner sc;
     private static ArrayList<User> customers;
-    private static ArrayList<User> des;
+    private static ArrayList<DE> des;
     private static ArrayList<Restaurant> restaurants;
     private static Random rand;
 
@@ -54,7 +54,7 @@ public class Swiggy implements Values{
         customers = new ArrayList<User>();
         
         // arraylist to hold all de names and addresses
-        des = new ArrayList<User>();
+        des = new ArrayList<DE>();
         
         // arraylist to hold all res names, addresses and items
         restaurants = new ArrayList<Restaurant>();
@@ -70,16 +70,8 @@ public class Swiggy implements Values{
         initRestaurants();
         initCustomers();
         printUsers();
-//        User u = new User(11,11);
-//        
-//        
-//        u.start();
-//        try{
-//        u.join();
-//        }catch(Exception e){
-//            System.out.println("thread u problem. " + e);
-//        }
         startOrdering();
+        startDelivering();
     }
 
     private static void initCustomers() {
@@ -94,10 +86,10 @@ public class Swiggy implements Values{
     
     private static void initDes() {
         int areaNo;
-        User de;
+        DE de;
         for(int i = 1; i <= nde; i ++){
             areaNo = rand.nextInt(nareas) + 1;
-            de = new User(i, areaNo);
+            de = new DE(i, areaNo);
             des.add(de);
         }
     }
@@ -142,7 +134,7 @@ public class Swiggy implements Values{
             System.out.println("cust" + c.getname() + "\t" + "area" + c.getAddress());
         }
         System.out.println("des:");
-        for(User de: des){
+        for(DE de: des){
             System.out.println("de" + de.getname() + "\t" + "area" + de.getAddress());
         }
         System.out.println("Restaurants:");
@@ -169,6 +161,44 @@ public class Swiggy implements Values{
                 System.out.println("thread c problem. " + e);
             }
         }
+    }
+
+    private static void startDelivering() {
+        for(DE de: des){
+            de.start();
+        }
+        for(DE de: des){
+        try{
+                de.join();
+            }
+            catch(Exception e){
+                System.out.println("de error:" + e);
+            }
+        }
+    }
+
+    public synchronized static int assignOrder(int name, int a,int btime) {
+        int time = 10000000;
+        int cName = 1;
+        for(User c: customers){
+            if(c.isDone()&&!c.isDelivered()){
+                int a1 = c.getAddress();
+                int a2 = restaurants.get(c.getRestnum()-1).getAddress();
+                int tempTime = 10*(Math.abs(a-a2)+Math.abs(a1-a2));
+                if(tempTime<time){
+                    time = tempTime;
+                    cName = c.getname();
+                }
+            }
+        }
+        if(time == 10000000){
+            return btime;
+        }
+        customers.get(cName-1).setDelivered(true);
+        System.out.println("de" + name + " is delivering from rest" + 
+                customers.get(cName-1).getRestnum() + " to cust" + cName 
+                + " in " + (time+btime) + " minutes.");
+        return time+btime;
     }
 
 }
