@@ -5,12 +5,23 @@
  */
 package swiggy;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author lakshman-pt2712
  */
 public class DE extends Thread{
-    private int name, address, btime, noOfOrders;
+    private int name, address, btime, noOfOrders, deliveryTime;
+
+    public int getDeliveryTime() {
+        return deliveryTime;
+    }
+
+    public void setDeliveryTime(int deliveryTime) {
+        this.deliveryTime = deliveryTime;
+    }
     private boolean busy;
     public void incAvlTime(int inc){
         noOfOrders += inc;
@@ -57,14 +68,13 @@ public class DE extends Thread{
     public void setAddress(int address) {
         this.address = address;
     }
-//    public void run(){
-//        while(Swiggy.assignOrder(name, address, btime) != btime){
-//            try{
-//            wait(btime);
-//            }catch(Exception e){}
-//        }
-//        
-//    }
+    public void run(){
+        try {
+            sleep(deliveryTime);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DE.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     public String toString(){
         return "de"+name+" ,add:"+address;
     }

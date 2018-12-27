@@ -65,22 +65,15 @@ public class Order extends Thread{
     public void run(){
         int dName = 0;
         while(dName == 0){
-            
             dName = Swiggy.findDE(cAdd,rAdd);
             if(dName==0){
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Order.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                try {
+                    sleep(100);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Order.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
         System.out.println(this + " is being delivered by de" + dName);
-//        try {
-//            wait(2000);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(Order.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        Swiggy.changeDeAddress(dName,cAdd);
     }
 }
