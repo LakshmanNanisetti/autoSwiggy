@@ -12,11 +12,11 @@ package swiggy;
 public class DE extends Thread{
     private int name, address, btime, noOfOrders;
     private boolean busy;
-    public void incNoOfOrders(){
-        noOfOrders += 1;
+    public void incAvlTime(int inc){
+        noOfOrders += inc;
     }
 
-    public int getNoOfOrders() {
+    public int getAvlTime() {
         return noOfOrders;
     }
     public DE(int name, int address) {
@@ -57,13 +57,15 @@ public class DE extends Thread{
     public void setAddress(int address) {
         this.address = address;
     }
-    public void run(){
-        while(Swiggy.assignOrder(name, address, btime) != btime){
-            try{
-            wait(btime);
-            }catch(Exception e){}
-        }
-        
+//    public void run(){
+//        while(Swiggy.assignOrder(name, address, btime) != btime){
+//            try{
+//            wait(btime);
+//            }catch(Exception e){}
+//        }
+//        
+//    }
+    public String toString(){
+        return "de"+name+" ,add:"+address;
     }
-    
 }

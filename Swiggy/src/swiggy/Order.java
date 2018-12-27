@@ -60,13 +60,13 @@ public class Order extends Thread{
         this.rAdd = rAdd;
     }
     public String toString(){
-        return "cust" + cName + " rest" + rName;
+        return "cust" + cName + " cust add:" + cAdd + " rest" + rName + " rest Add:" + rAdd;
     }
     public void run(){
         int dName = 0;
         while(dName == 0){
             
-            dName = Swiggy.findDE(rAdd);
+            dName = Swiggy.findDE(cAdd,rAdd);
             if(dName==0){
             try {
                 TimeUnit.SECONDS.sleep(1);
