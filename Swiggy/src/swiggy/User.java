@@ -72,7 +72,7 @@ public class User extends Thread{
             tolerance--;
         }
         if(tolerance > 0){
-            printOrder();
+            printOrder(name, restnum, orders);
             done = true;
             Swiggy.addOrder(new Order(name, restnum, address, Swiggy.getRestaurantAddress(restnum)));
         }
@@ -82,7 +82,7 @@ public class User extends Thread{
         
         
     }
-    public synchronized  void printOrder(){
+    public synchronized static void printOrder(int name, int restnum, HashMap<Integer,Integer> orders){
         System.out.println("User"+ name +" made an order at rest" + restnum + " and items are:" );
         for(Map.Entry<Integer,Integer> me: orders.entrySet()){
             System.out.println("item" + me.getKey() + " - quantity: " + me.getValue());

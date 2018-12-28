@@ -16,12 +16,13 @@ import java.util.concurrent.TimeUnit;
 public class Order extends Thread{
     int cName,rName,cAdd,rAdd;
     boolean delivered = false;
-
+    private static boolean suspended;
     public Order(int cName, int rName, int cAdd, int rAdd) {
         this.cName = cName;
         this.rName = rName;
         this.cAdd = cAdd;
         this.rAdd = rAdd;
+        suspended = false;
     }
 
     public void setDelivered(boolean delivered) {
@@ -61,6 +62,12 @@ public class Order extends Thread{
     }
     public String toString(){
         return "cust" + cName + " cust add:" + cAdd + " rest" + rName + " rest Add:" + rAdd;
+    }
+    public static void susp(){
+        suspended = false;
+    }
+    public static void res(){
+        suspended = true;
     }
     public void run(){
         int dName = 0;
