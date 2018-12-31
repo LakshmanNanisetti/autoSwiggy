@@ -15,20 +15,18 @@ import java.util.logging.Logger;
  */
 public class Swiggy implements Values {
 
-    public static void resumeOrdering() {
-        so.resume();
-    }
 
     public static class Ordering implements Runnable {
 
         private boolean ordersSuspended;
+
         public Ordering() {
             ordersSuspended = false;
             pendingOrders = 0;
         }
 
         public void run() {
-            
+
             for (User c : customers) {
                 c.start();
                 ++pendingOrders;
@@ -63,7 +61,7 @@ public class Swiggy implements Values {
 
         public void run() {
             while (true) {
-                while (noOrders &&(pendingOrders != nc)) {
+                while (noOrders && (pendingOrders != nc)) {
                     try {
                         wait(1000);
                     } catch (InterruptedException ex) {
@@ -75,17 +73,28 @@ public class Swiggy implements Values {
                     ArrayList<Order> tempOrders = new ArrayList<>(newOrders);
                     for (Order o : tempOrders) {
                         o.start();
-                        System.out.println("order: "+o +" is started");
+                        System.out.println("order: " + o + " is started");
                         orders.add(o);
 //                        newOrders.remove(o);
                     }
                     newOrders.removeAll(tempOrders);
                 }
-//                if(pendingOrders==nc){
-//                break;
-//            }
+                if (pendingOrders == nc && orders.size() == nc) {
+                        System.out.println("entered waiting "+ orders.size());
+                      int i=0;
+                        for(Order o: orders){
+                            i++;
+                          try {
+                              System.out.println("before join of");
+                              o.join();
+                              System.out.println("after join of "+i);
+                          } catch (InterruptedException ex) {
+                              Logger.getLogger(Swiggy.class.getName()).log(Level.SEVERE, null, ex);
+                          }
+                      }
+                      break;
+                }
             }
-            
         }
 
         public void suspend() {
@@ -158,6 +167,8 @@ public class Swiggy implements Values {
         //arraylist of all orders
         newOrders = new ArrayList<>();
         orders = new ArrayList<>();
+        
+        //des
         System.out.println("enter the no of customers:");
         nc = scanInt();
         System.out.println("enter the no of delivery executives:");
@@ -185,7 +196,7 @@ public class Swiggy implements Values {
         } catch (InterruptedException ex) {
             Logger.getLogger(Swiggy.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
     private static void initCustomers() {
@@ -339,17 +350,7 @@ public class Swiggy implements Values {
     public synchronized static int findDE(int cAdd, int rAdd) {
         int min = 100000;
         int dName = 0;
-//        int dos = 10000;
-//            System.out.println("des:"+des);
-//            System.out.println("bdes:"+bdes);
         for (Map.Entry<Integer, DE> de : des.entrySet()) {
-//            if(((dos > d.getAvlTime()) ||
-//                ((min> (Math.abs(d.getAddress() - rAdd)+Math.abs(cAdd - rAdd))) 
-//                    && dos == d.getAvlTime()))){
-//                min = Math.abs(d.getAddress()-rAdd) + Math.abs(cAdd-rAdd);
-//                dName = d.getname();
-//                dos = d.getAvlTime();
-//            }
             int tempTime = Math.abs(de.getValue().getAddress() - rAdd) + Math.abs(cAdd - rAdd);
             if (min > tempTime) {
                 dName = de.getKey();
@@ -357,16 +358,16 @@ public class Swiggy implements Values {
             }
         }
         if (dName != 0) {
-//            des.get(dName-1).incAvlTime(min);
             des.get(dName).setAddress(cAdd);
             des.get(dName).setDeliveryTime(min);
             bdes.put(dName, des.remove(dName));
 //            System.out.println("des:" + des);
 //            System.out.println("bdes:" + bdes);
             Thread t = new Thread(bdes.get(dName));
-            System.out.println("de"+dName+" is delivering for customer");
+            System.out.println("de" + dName + " is delivering for customer");
             t.start();
-        } 
+            
+        }
         if (bdes.size() == nde) {
             so.suspend();
         }
